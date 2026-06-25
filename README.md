@@ -1,87 +1,114 @@
-# Portfolio Samples for Freelance Platforms
+# 🚀 Portfolio — 自由职业接单展示作品集 / Freelance Portfolio Samples
 
-These are ready-to-deploy portfolio samples showcasing your skills as an AI-Native Developer.
+[中文版](#-中文版) | [English Version](#-english-version)
 
-## 📁 Samples
+---
 
-### Sample 1: Landing Page (`sample1-landing-page/`)
-- **What**: SaaS product landing page with modern dark theme
-- **Tech**: Pure HTML/CSS, no dependencies, mobile responsive
-- **Demo**: 🔗 [Live Demo](https://xia-shangzhou.github.io/portfolio/sample1-landing-page/)
-- **Selling point**: "I can build this for your product in 24-48 hours"
+## 🇨🇳 中文版
 
-### Sample 1-CN: Landing Page 中文版 (`sample1-landing-page-cn/`)
-- **What**: 中文 SaaS 产品落地页，现代深色主题
-- **Tech**: 纯 HTML/CSS，无依赖，响应式
-- **Demo**: 🔗 [Live Demo](https://xia-shangzhou.github.io/portfolio/sample1-landing-page-cn/)
-- **Selling point**: "48小时交付你的产品官网"
+这是一套为自由职业者准备的可直接部署的 Portfolio 样本，展示你作为 **AI-Native 开发者** 的技能。
 
-### Sample 2: SaaS Dashboard (`sample2-saas-dashboard/`)
-- **What**: Full admin dashboard with sidebar, stats, charts, and data tables
-- **Tech**: Pure HTML/CSS, responsive layout
-- **Demo**: 🔗 [Live Demo](https://xia-shangzhou.github.io/portfolio/sample2-saas-dashboard/)
-- **Selling point**: "I can build your admin panel in 2-3 days"
+### 🌐 在线预览
 
-### Sample 2-CN: Dashboard 中文版 (`sample2-saas-dashboard-cn/`)
-- **What**: 中文后台管理界面，侧边栏、统计图表、数据表格
-- **Tech**: 纯 HTML/CSS，响应式布局
-- **Demo**: 🔗 [Live Demo](https://xia-shangzhou.github.io/portfolio/sample2-saas-dashboard-cn/)
-- **Selling point**: "3天交付你的管理后台"
+| 样本 | 在线预览 | 适用场景 |
+|------|---------|---------|
+| 🚀 **落地页** | [🔗 在线预览](https://xia-shangzhou.github.io/portfolio/sample1-landing-page-cn/) | Fiverr/Upwork 展示、客户提案 |
+| 📊 **管理后台** | [🔗 在线预览](https://xia-shangzhou.github.io/portfolio/sample2-saas-dashboard-cn/) | SaaS 项目展示、后台系统演示 |
+| 🔍 **代码审计** | [🔗 在线预览](https://xia-shangzhou.github.io/portfolio/sample3-fix-ai-code-cn/) | 修复 AI 代码服务展示 |
 
-### Sample 3: Code Audit Showcase (`sample3-fix-ai-code/`)
-- **What**: Before/after code comparison showing security fixes
-- **Tech**: Pure HTML/CSS, visual storytelling
-- **Demo**: 🔗 [Live Demo](https://xia-shangzhou.github.io/portfolio/sample3-fix-ai-code/)
-- **Selling point**: "I fix broken AI-generated code — here's proof"
+### 📁 文件结构
 
-### Sample 3-CN: Code Audit 中文版 (`sample3-fix-ai-code-cn/`)
-- **What**: 中文代码审计展示，修复前后对比
-- **Tech**: 纯 HTML/CSS，可视化展示
-- **Demo**: 🔗 [Live Demo](https://xia-shangzhou.github.io/portfolio/sample3-fix-ai-code-cn/)
-- **Selling point**: "帮你修复 AI 生成的烂代码"
-
-## 🚀 How to Deploy
-
-### Option 1: GitHub Pages (Free)
-```bash
-cd portfolio-samples
-git init
-git add .
-git commit -m "Portfolio samples"
-git remote add origin https://github.com/YOUR_USERNAME/portfolio.git
-git push -u origin main
-# Then enable GitHub Pages in repo settings
+```
+portfolio-samples/
+├── sample1-landing-page-cn/     # 中文落地页
+├── sample2-saas-dashboard-cn/   # 中文管理后台
+├── sample3-fix-ai-code-cn/      # 中文代码审计
+├── sample1-landing-page/        # 英文落地页
+├── sample2-saas-dashboard/      # 英文管理后台
+├── sample3-fix-ai-code/         # 英文代码审计
+├── fiverr-gigs.md              # Fiverr 服务描述模板
+├── upwork-profile.md           # Upwork 个人主页文案
+└── quick-start-plan.md         # 快速启动计划
 ```
 
-### Option 2: Vercel (Free, better performance)
+### 💡 服务卖点
+
+| 服务 | 我的报价 | 传统报价 | 优势 |
+|------|---------|---------|------|
+| 落地页 | ¥1,500-¥3,500 | ¥5,000-¥15,000 | 便宜 60%，快 3 倍 |
+| 企业官网 | ¥3,500-¥10,000 | ¥15,000-¥35,000 | 便宜 65%，快 4 倍 |
+| 管理后台 | ¥5,500-¥18,000 | ¥20,000-¥60,000 | 便宜 68%，快 3 倍 |
+| 代码审计修复 | ¥1,000-¥4,000 | ¥3,500-¥15,000 | 便宜 70%，快 5 倍 |
+
+### 📋 接单话术
+
+**当客户问工具时：**
+> ✅ "我用现代全栈技术栈（React/Next.js），配合自动化工具加速开发，所以能比传统开发快 3-5 倍交付。"
+
+**当客户问为什么便宜时：**
+> ✅ "我专注于标准化项目（落地页、官网、后台），有成熟的开发流程，效率更高，不牺牲质量。"
+
+---
+
+## 🌐 English Version
+
+Ready-to-deploy portfolio samples showcasing your skills as an **AI-Native Developer**.
+
+### 🌐 Live Demos
+
+| Sample | Live Demo | Use Case |
+|--------|-----------|----------|
+| 🚀 **Landing Page** | [🔗 Live Demo](https://xia-shangzhou.github.io/portfolio/sample1-landing-page/) | Fiverr/Upwork portfolio, client proposals |
+| 📊 **SaaS Dashboard** | [🔗 Live Demo](https://xia-shangzhou.github.io/portfolio/sample2-saas-dashboard/) | SaaS project showcase, admin panel demo |
+| 🔍 **Code Audit** | [🔗 Live Demo](https://xia-shangzhou.github.io/portfolio/sample3-fix-ai-code/) | AI code fix service showcase |
+
+### 💡 Selling Points
+
+| Service | Your Price | Traditional Price | Advantage |
+|---------|-----------|------------------|-----------|
+| Landing Page | $199-$499 | $800-$2,000 | 60% cheaper, 3x faster |
+| Business Website | $499-$1,499 | $2,000-$5,000 | 65% cheaper, 4x faster |
+| Admin Dashboard | $799-$2,499 | $3,000-$8,000 | 68% cheaper, 3x faster |
+| Code Audit + Fix | $149-$599 | $500-$2,000 | 70% cheaper, 5x faster |
+
+### 📝 Fiverr Gig Titles
+
+1. "I will build a modern landing page in 24 hours"
+2. "I will create a responsive website from your design"
+3. "I will fix your broken AI-generated website code"
+4. "I will build a SaaS dashboard in 48 hours"
+
+### 📝 Upwork Headline
+
+> "AI-Powered Full-Stack Developer | 48hr Website Delivery | React, Next.js, Node.js"
+
+---
+
+## 🚀 部署方式 / How to Deploy
+
+### GitHub Pages（免费 / Free）
+```bash
+cd portfolio-samples
+git init && git add . && git commit -m "Portfolio"
+git remote add origin https://github.com/YOUR_USERNAME/portfolio.git
+git push -u origin main
+# 在 Settings → Pages 开启 GitHub Pages
+```
+
+### Vercel（免费，更快 / Free, faster）
 ```bash
 npm i -g vercel
 cd portfolio-samples/sample1-landing-page
 vercel --prod
 ```
 
-### Option 3: Netlify (Free)
-Drag & drop the folder to https://app.netlify.com/drop
+### 宝塔面板（你的 VPS）
+上传文件到 `/www/wwwroot/你的域名/`，配置 Nginx 伪静态规则。
 
-## 📝 Fiverr Gig Titles
+---
 
-1. **"I will build a modern landing page in 24 hours"**
-2. **"I will create a responsive website from your design"**
-3. **"I will fix your broken AI-generated website code"**
-4. **"I will build a SaaS dashboard in 48 hours"**
-5. **"I will optimize and secure your existing website"**
+## 📚 相关文档
 
-## 📝 Upwork Profile Headline
-
-**Option A**: "AI-Powered Full-Stack Developer | 48hr Website Delivery | Next.js, React, Node.js"
-
-**Option B**: "Fast Website Builder & Code Fixer | Using AI to Deliver 5x Faster | 100+ Projects"
-
-## 💰 Pricing Guide
-
-| Service | Your Price | Traditional Price | Your Advantage |
-|---------|-----------|------------------|----------------|
-| Landing Page | $199-$499 | $800-$2,000 | 60% cheaper, 3x faster |
-| Business Website | $499-$1,499 | $2,000-$5,000 | 65% cheaper, 4x faster |
-| Admin Dashboard | $799-$2,499 | $3,000-$8,000 | 68% cheaper, 3x faster |
-| Code Audit + Fix | $149-$599 | $500-$2,000 | 70% cheaper, 5x faster |
+- [Fiverr 服务描述模板](fiverr-gigs.md)
+- [Upwork 个人主页文案](upwork-profile.md)
+- [快速启动计划](quick-start-plan.md)
