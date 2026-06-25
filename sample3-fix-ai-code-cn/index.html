@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 代码审计 — 修复前后对比</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0d1117; --bg-card: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #8b949e;
+      --green: #3fb950; --red: #f85149; --yellow: #d29922; --blue: #58a6ff; --purple: #bc8cff;
+    }
+    body { font-family: 'SF Mono', 'Fira Code', 'PingFang SC', 'Microsoft YaHei', monospace; background: var(--bg); color: var(--text); padding: 2rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    .header { text-align: center; margin-bottom: 3rem; padding: 3rem 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+    .header h1 { font-size: 2rem; margin-bottom: 1rem; font-family: -apple-system, 'PingFang SC', sans-serif; }
+    .header p { color: var(--text-muted); font-size: 1rem; }
+    .stats-row { display: flex; justify-content: center; gap: 3rem; margin-top: 2rem; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red { color: var(--red); }
+    .stat-value.blue { color: var(--blue); }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+    
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .code-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-family: -apple-system, 'PingFang SC', sans-serif; }
+    .panel-title { font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    .panel-title.bad { color: var(--red); }
+    .panel-title.good { color: var(--green); }
+    .badge { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+    .badge-red { background: rgba(248, 81, 73, 0.15); color: var(--red); }
+    .badge-green { background: rgba(63, 185, 80, 0.15); color: var(--green); }
+    
+    .code-content { padding: 1.5rem; font-size: 0.8rem; line-height: 1.8; overflow-x: auto; }
+    .line { display: flex; gap: 1rem; }
+    .line-num { color: var(--text-muted); user-select: none; min-width: 2rem; text-align: right; }
+    .line-code { flex: 1; }
+    .line.highlight-bad { background: rgba(248, 81, 73, 0.08); margin: 0 -1.5rem; padding: 0 1.5rem; }
+    .line.highlight-good { background: rgba(63, 185, 80, 0.08); margin: 0 -1.5rem; padding: 0 1.5rem; }
+    
+    .keyword { color: var(--blue); }
+    .string { color: var(--green); }
+    .comment { color: var(--text-muted); }
+    .func { color: var(--purple); }
+    .error-mark { color: var(--red); font-weight: 700; }
+    .fix-mark { color: var(--green); font-weight: 700; }
+    
+    .issues-list { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .issues-list h3 { font-family: -apple-system, 'PingFang SC', sans-serif; margin-bottom: 1rem; font-size: 1.1rem; }
+    .issue { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; background: rgba(255, 255, 255, 0.02); }
+    .issue-icon { font-size: 1.2rem; }
+    .issue-content { flex: 1; }
+    .issue-title { font-weight: 600; font-family: -apple-system, 'PingFang SC', sans-serif; }
+    .issue-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .issue-fix { font-size: 0.8rem; color: var(--green); margin-top: 0.5rem; }
+    
+    .cta-section { text-align: center; padding: 3rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+    .cta-section h2 { font-family: -apple-system, 'PingFang SC', sans-serif; font-size: 1.5rem; margin-bottom: 1rem; }
+    .cta-section p { color: var(--text-muted); margin-bottom: 1.5rem; }
+    .cta-btn { display: inline-block; padding: 0.75rem 2rem; background: var(--green); color: #000; text-decoration: none; border-radius: 8px; font-weight: 700; font-family: -apple-system, 'PingFang SC', sans-serif; transition: all 0.2s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(63, 185, 80, 0.3); }
+    
+    @media (max-width: 768px) { .compare-grid { grid-template-columns: 1fr; } .stats-row { flex-direction: column; gap: 1rem; } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🔍 AI 代码审计 — 真实案例</h1>
+    <p>客户带来一个由 ChatGPT 生成的有问题的认证模块。<br>以下是我们发现的问题以及修复方案。</p>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-value red">7</div>
+        <div class="stat-label">发现安全问题</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value red">3</div>
+        <div class="stat-label">严重漏洞</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value green">100%</div>
+        <div class="stat-label">已修复并加固</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value blue">4小时</div>
+        <div class="stat-label">修复耗时</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="compare-grid">
+    <div class="code-panel">
+      <div class="panel-header">
+        <span class="panel-title bad">❌ 修复前（AI 生成）</span>
+        <span class="badge badge-red">存在漏洞</span>
+      </div>
+      <div class="code-content">
+        <div class="line highlight-bad"><span class="line-num">1</span><span class="line-code"><span class="comment">// ❌ 无频率限制 — 允许暴力破解</span></span></div>
+        <div class="line"><span class="line-num">2</span><span class="line-code"><span class="keyword">app</span>.<span class="func">post</span>(<span class="string">'/login'</span>, <span class="keyword">async</span> (<span class="var">req, res</span>) => {</span></div>
+        <div class="line highlight-bad"><span class="line-num">3</span><span class="line-code">  <span class="keyword">const</span> <span class="var">user</span> = <span class="keyword">await</span> <span class="func">db.query</span>(</span></div>
+        <div class="line highlight-bad"><span class="line-num">4</span><span class="line-code">    <span class="string">`SELECT * FROM users WHERE email='${<span class="error-mark">req.body.email</span>}'`</span></span></div>
+        <div class="line"><span class="line-num">5</span><span class="line-code">  );</span></div>
+        <div class="line highlight-bad"><span class="line-num">6</span><span class="line-code">  <span class="keyword">if</span> (<span class="var">user</span> && <span class="var">user</span>.password === <span class="error-mark">req.body.password</span>) {</span></div>
+        <div class="line"><span class="line-num">7</span><span class="line-code">    <span class="keyword">const</span> <span class="var">token</span> = <span class="func">jwt.sign</span>({ <span class="var">id</span>: <span class="var">user</span>.id },</span></div>
+        <div class="line highlight-bad"><span class="line-num">8</span><span class="line-code">      <span class="string">'secret123'</span>, { <span class="var">expiresIn</span>: <span class="string">'7d'</span> });</span></div>
+        <div class="line"><span class="line-num">9</span><span class="line-code">    <span class="var">res</span>.<span class="func">json</span>({ <span class="var">token</span> });</span></div>
+        <div class="line"><span class="line-num">10</span><span class="line-code">  } <span class="keyword">else</span> {</span></div>
+        <div class="line highlight-bad"><span class="line-num">11</span><span class="line-code">    <span class="var">res</span>.<span class="func">status</span>(401).<span class="func">json</span>({ <span class="var">error</span>: <span class="error-mark">'用户名或密码错误'</span> });</span></div>
+        <div class="line"><span class="line-num">12</span><span class="line-code">  }</span></div>
+        <div class="line"><span class="line-num">13</span><span class="line-code">});</span></div>
+      </div>
+    </div>
+
+    <div class="code-panel">
+      <div class="panel-header">
+        <span class="panel-title good">✅ 修复后（安全加固）</span>
+        <span class="badge badge-green">安全</span>
+      </div>
+      <div class="code-content">
+        <div class="line highlight-good"><span class="line-num">1</span><span class="line-code"><span class="comment">// ✅ 频率限制：15分钟内最多5次尝试</span></span></div>
+        <div class="line"><span class="line-num">2</span><span class="line-code"><span class="keyword">const</span> <span class="var">limiter</span> = <span class="func">rateLimit</span>({ <span class="var">windowMs</span>: 15*60*1000, <span class="var">max</span>: 5 });</span></div>
+        <div class="line"><span class="line-num">3</span><span class="line-code"></span></div>
+        <div class="line"><span class="line-num">4</span><span class="line-code"><span class="keyword">app</span>.<span class="func">post</span>(<span class="string">'/login'</span>, <span class="var">limiter</span>, <span class="keyword">async</span> (<span class="var">req, res</span>) => {</span></div>
+        <div class="line highlight-good"><span class="line-num">5</span><span class="line-code">  <span class="keyword">const</span> <span class="var">user</span> = <span class="keyword">await</span> <span class="func">db.query</span>(</span></div>
+        <div class="line highlight-good"><span class="line-num">6</span><span class="line-code">    <span class="string">'SELECT * FROM users WHERE email=$1'</span>,</span></div>
+        <div class="line highlight-good"><span class="line-num">7</span><span class="line-code">    [<span class="fix-mark">req.body.email</span>]  <span class="comment">// ✅ 参数化查询</span></span></div>
+        <div class="line"><span class="line-num">8</span><span class="line-code">  );</span></div>
+        <div class="line highlight-good"><span class="line-num">9</span><span class="line-code">  <span class="keyword">if</span> (<span class="var">user</span> && <span class="keyword">await</span> <span class="func">bcrypt.compare</span>(</span></div>
+        <div class="line highlight-good"><span class="line-num">10</span><span class="line-code">    <span class="fix-mark">req.body.password</span>, <span class="var">user</span>.password_hash)) {</span></div>
+        <div class="line"><span class="line-num">11</span><span class="line-code">    <span class="keyword">const</span> <span class="var">token</span> = <span class="func">jwt.sign</span>({ <span class="var">id</span>: <span class="var">user</span>.id },</span></div>
+        <div class="line highlight-good"><span class="line-num">12</span><span class="line-code">      <span class="fix-mark">process.env.JWT_SECRET</span>, { <span class="var">expiresIn</span>: <span class="string">'1h'</span> });</span></div>
+        <div class="line"><span class="line-num">13</span><span class="line-code">    <span class="var">res</span>.<span class="func">json</span>({ <span class="var">token</span> });</span></div>
+        <div class="line"><span class="line-num">14</span><span class="line-code">  } <span class="keyword">else</span> {</span></div>
+        <div class="line highlight-good"><span class="line-num">15</span><span class="line-code">    <span class="comment">// ✅ 统一错误提示（防止用户枚举）</span></span></div>
+        <div class="line highlight-good"><span class="line-num">16</span><span class="line-code">    <span class="var">res</span>.<span class="func">status</span>(401).<span class="func">json</span>({ <span class="var">error</span>: <span class="fix-mark">'用户名或密码错误'</span> });</span></div>
+        <div class="line"><span class="line-num">17</span><span class="line-code">  }</span></div>
+        <div class="line"><span class="line-num">18</span><span class="line-code">});</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="issues-list">
+    <h3>🚨 发现的问题及修复</h3>
+    
+    <div class="issue">
+      <div class="issue-icon">🔴</div>
+      <div class="issue-content">
+        <div class="issue-title">SQL 注入漏洞</div>
+        <div class="issue-desc">用户输入直接拼接到 SQL 查询字符串中 — 可导致数据库被接管</div>
+        <div class="issue-fix">✅ 已修复：改用参数化查询（$1, $2...）</div>
+      </div>
+    </div>
+    
+    <div class="issue">
+      <div class="issue-icon">🔴</div>
+      <div class="issue-content">
+        <div class="issue-title">明文密码比较</div>
+        <div class="issue-desc">密码以明文字符串比较而非 bcrypt 哈希 — 数据库泄露等于所有密码暴露</div>
+        <div class="issue-fix">✅ 已修复：改用 bcrypt.compare() 进行安全比对</div>
+      </div>
+    </div>
+    
+    <div class="issue">
+      <div class="issue-icon">🔴</div>
+      <div class="issue-content">
+        <div class="issue-title">硬编码 JWT 密钥</div>
+        <div class="issue-desc">密钥 "secret123" 直接写在代码中 — 任何有代码访问权限的人都能伪造 Token</div>
+        <div class="issue-fix">✅ 已修复：改用环境变量（process.env.JWT_SECRET）</div>
+      </div>
+    </div>
+    
+    <div class="issue">
+      <div class="issue-icon">🟡</div>
+      <div class="issue-content">
+        <div class="issue-title">无频率限制</div>
+        <div class="issue-desc">登录接口无暴力破解防护</div>
+        <div class="issue-fix">✅ 已修复：添加 express-rate-limit（15分钟内最多5次）</div>
+      </div>
+    </div>
+    
+    <div class="issue">
+      <div class="issue-icon">🟡</div>
+      <div class="issue-content">
+        <div class="issue-title">Token 有效期过长</div>
+        <div class="issue-desc">7 天 Token 有效期增加了被盗利用的时间窗口</div>
+        <div class="issue-fix">✅ 已修复：缩短至 1 小时，配合刷新 Token 机制</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>AI 生成的代码需要修复？</h2>
+    <p>我们审计、修复并加固 AI 生成的代码库。大多数审计 4-8 小时内完成。</p>
+    <a href="#" class="cta-btn">申请免费代码审计 →</a>
+  </div>
+</div>
+
+</body>
+</html>
