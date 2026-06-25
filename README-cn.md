@@ -1,8 +1,8 @@
 # 🚀 作品集 — 自由职业接单展示
 
-一套为自由职业者准备的可直接部署的 Portfolio 样本，展示你作为 **AI-Native 开发者** 的技能。
-
 > 📖 [English Version](README.md)
+
+一套为自由职业者准备的可直接部署的 Portfolio 样本，展示你作为 **AI-Native 开发者** 的技能。
 
 ## 🌐 在线预览
 

@@ -1,5 +1,7 @@
 # 🚀 Portfolio — Freelance Portfolio Samples
 
+> 📖 [中文版 README](README-cn.md)
+
 Ready-to-deploy portfolio samples showcasing your skills as an **AI-Native Developer**.
 
 ## 🌐 Live Demos
