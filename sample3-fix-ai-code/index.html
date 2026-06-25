@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Code Audit — Before & After</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --green: #3fb950;
+      --red: #f85149;
+      --yellow: #d29922;
+      --blue: #58a6ff;
+      --purple: #bc8cff;
+    }
+    
+    body {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+    }
+    
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 3rem 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      font-family: -apple-system, sans-serif;
+    }
+    
+    .header p { color: var(--text-muted); font-size: 1rem; }
+    
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 2rem;
+    }
+    
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red { color: var(--red); }
+    .stat-value.blue { color: var(--blue); }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+    
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .code-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      font-family: -apple-system, sans-serif;
+    }
+    
+    .panel-title {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .panel-title.bad { color: var(--red); }
+    .panel-title.good { color: var(--green); }
+    
+    .badge {
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    
+    .badge-red { background: rgba(248, 81, 73, 0.15); color: var(--red); }
+    .badge-green { background: rgba(63, 185, 80, 0.15); color: var(--green); }
+    
+    .code-content {
+      padding: 1.5rem;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    
+    .line { display: flex; gap: 1rem; }
+    .line-num { color: var(--text-muted); user-select: none; min-width: 2rem; text-align: right; }
+    .line-code { flex: 1; }
+    
+    .line.highlight-bad { background: rgba(248, 81, 73, 0.08); margin: 0 -1.5rem; padding: 0 1.5rem; }
+    .line.highlight-good { background: rgba(63, 185, 80, 0.08); margin: 0 -1.5rem; padding: 0 1.5rem; }
+    
+    .keyword { color: var(--blue); }
+    .string { color: var(--green); }
+    .comment { color: var(--text-muted); }
+    .func { color: var(--purple); }
+    .var { color: var(--text); }
+    .error-mark { color: var(--red); font-weight: 700; }
+    .fix-mark { color: var(--green); font-weight: 700; }
+    
+    .issues-list {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .issues-list h3 {
+      font-family: -apple-system, sans-serif;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    
+    .issue {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .issue-icon { font-size: 1.2rem; }
+    
+    .issue-content { flex: 1; }
+    .issue-title { font-weight: 600; font-family: -apple-system, sans-serif; }
+    .issue-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .issue-fix { font-size: 0.8rem; color: var(--green); margin-top: 0.5rem; }
+    
+    .cta-section {
+      text-align: center;
+      padding: 3rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    
+    .cta-section h2 {
+      font-family: -apple-system, sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .cta-section p { color: var(--text-muted); margin-bottom: 1.5rem; }
+    
+    .cta-btn {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: var(--green);
+      color: #000;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-family: -apple-system, sans-serif;
+      transition: all 0.2s;
+    }
+    
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(63, 185, 80, 0.3); }
+    
+    @media (max-width: 768px) {
+      .compare-grid { grid-template-columns: 1fr; }
+      .stats-row { flex-direction: column; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🔍 AI Code Audit — Real Example</h1>
+    <p>A client came to us with a broken authentication module generated by ChatGPT.<br>Here's what we found and how we fixed it.</p>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-value red">7</div>
+        <div class="stat-label">Security Issues Found</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value red">3</div>
+        <div class="stat-label">Critical Vulnerabilities</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value green">100%</div>
+        <div class="stat-label">Fixed & Secured</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value blue">4hrs</div>
+        <div class="stat-label">Time to Fix</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code Comparison -->
+  <div class="compare-grid">
+    <!-- Before -->
+    <div class="code-panel">
+      <div class="panel-header">
+        <span class="panel-title bad">❌ Before (AI-Generated)</span>
+        <span class="badge badge-red">VULNERABLE</span>
+      </div>
+      <div class="code-content">
+        <div class="line highlight-bad"><span class="line-num">1</span><span class="line-code"><span class="comment">// ❌ No rate limiting — allows brute force</span></span></div>
+        <div class="line"><span class="line-num">2</span><span class="line-code"><span class="keyword">app</span>.<span class="func">post</span>(<span class="string">'/login'</span>, <span class="keyword">async</span> (<span class="var">req, res</span>) => {</span></div>
+        <div class="line highlight-bad"><span class="line-num">3</span><span class="line-code">  <span class="keyword">const</span> <span class="var">user</span> = <span class="keyword">await</span> <span class="func">db.query</span>(</span></div>
+        <div class="line highlight-bad"><span class="line-num">4</span><span class="line-code">    <span class="string">`SELECT * FROM users WHERE email='${<span class="error-mark">req.body.email</span>}'`</span></span></div>
+        <div class="line"><span class="line-num">5</span><span class="line-code">  );</span></div>
+        <div class="line highlight-bad"><span class="line-num">6</span><span class="line-code">  <span class="keyword">if</span> (<span class="var">user</span> && <span class="var">user</span>.password === <span class="error-mark">req.body.password</span>) {</span></div>
+        <div class="line"><span class="line-num">7</span><span class="line-code">    <span class="keyword">const</span> <span class="var">token</span> = <span class="func">jwt.sign</span>({ <span class="var">id</span>: <span class="var">user</span>.id },</span></div>
+        <div class="line highlight-bad"><span class="line-num">8</span><span class="line-code">      <span class="string">'secret123'</span>, { <span class="var">expiresIn</span>: <span class="string">'7d'</span> });</span></div>
+        <div class="line"><span class="line-num">9</span><span class="line-code">    <span class="var">res</span>.<span class="func">json</span>({ <span class="var">token</span> });</span></div>
+        <div class="line"><span class="line-num">10</span><span class="line-code">  } <span class="keyword">else</span> {</span></div>
+        <div class="line highlight-bad"><span class="line-num">11</span><span class="line-code">    <span class="var">res</span>.<span class="func">status</span>(401).<span class="func">json</span>({ <span class="var">error</span>: <span class="error-mark">'Invalid credentials'</span> });</span></div>
+        <div class="line"><span class="line-num">12</span><span class="line-code">  }</span></div>
+        <div class="line"><span class="line-num">13</span><span class="line-code">});</span></div>
+      </div>
+    </div>
+
+    <!-- After -->
+    <div class="code-panel">
+      <div class="panel-header">
+        <span class="panel-title good">✅ After (Fixed & Secured)</span>
+        <span class="badge badge-green">SECURE</span>
+      </div>
+      <div class="code-content">
+        <div class="line highlight-good"><span class="line-num">1</span><span class="line-code"><span class="comment">// ✅ Rate limiting: 5 attempts per 15 min</span></span></div>
+        <div class="line"><span class="line-num">2</span><span class="line-code"><span class="keyword">const</span> <span class="var">limiter</span> = <span class="func">rateLimit</span>({ <span class="var">windowMs</span>: 15*60*1000, <span class="var">max</span>: 5 });</span></div>
+        <div class="line"><span class="line-num">3</span><span class="line-code"></span></div>
+        <div class="line"><span class="line-num">4</span><span class="line-code"><span class="keyword">app</span>.<span class="func">post</span>(<span class="string">'/login'</span>, <span class="var">limiter</span>, <span class="keyword">async</span> (<span class="var">req, res</span>) => {</span></div>
+        <div class="line highlight-good"><span class="line-num">5</span><span class="line-code">  <span class="keyword">const</span> <span class="var">user</span> = <span class="keyword">await</span> <span class="func">db.query</span>(</span></div>
+        <div class="line highlight-good"><span class="line-num">6</span><span class="line-code">    <span class="string">'SELECT * FROM users WHERE email=$1'</span>,</span></div>
+        <div class="line highlight-good"><span class="line-num">7</span><span class="line-code">    [<span class="fix-mark">req.body.email</span>]  <span class="comment">// ✅ Parameterized query</span></span></div>
+        <div class="line"><span class="line-num">8</span><span class="line-code">  );</span></div>
+        <div class="line highlight-good"><span class="line-num">9</span><span class="line-code">  <span class="keyword">if</span> (<span class="var">user</span> && <span class="keyword">await</span> <span class="func">bcrypt.compare</span>(</span></div>
+        <div class="line highlight-good"><span class="line-num">10</span><span class="line-code">    <span class="fix-mark">req.body.password</span>, <span class="var">user</span>.password_hash)) {</span></div>
+        <div class="line"><span class="line-num">11</span><span class="line-code">    <span class="keyword">const</span> <span class="var">token</span> = <span class="func">jwt.sign</span>({ <span class="var">id</span>: <span class="var">user</span>.id },</span></div>
+        <div class="line highlight-good"><span class="line-num">12</span><span class="line-code">      <span class="fix-mark">process.env.JWT_SECRET</span>, { <span class="var">expiresIn</span>: <span class="string">'1h'</span> });</span></div>
+        <div class="line"><span class="line-num">13</span><span class="line-code">    <span class="var">res</span>.<span class="func">json</span>({ <span class="var">token</span> });</span></div>
+        <div class="line"><span class="line-num">14</span><span class="line-code">  } <span class="keyword">else</span> {</span></div>
+        <div class="line highlight-good"><span class="line-num">15</span><span class="line-code">    <span class="comment">// ✅ Same error for both cases (prevents enumeration)</span></span></div>
+        <div class="line highlight-good"><span class="line-num">16</span><span class="line-code">    <span class="var">res</span>.<span class="func">status</span>(401).<span class="func">json</span>({ <span class="var">error</span>: <span class="fix-mark">'Invalid credentials'</span> });</span></div>
+        <div class="line"><span class="line-num">17</span><span class="line-code">  }</span></div>
+        <div class="line"><span class="line-num">18</span><span class="line-code">});</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issues List -->
+  <div class="issues-list">
+    <h3>🚨 Issues Found & Fixed</h3>
+    
+    <div class="issue">
+      <div class="issue-icon">🔴</div>
+      <div class="issue-content">
+        <div class="issue-title">SQL Injection Vulnerability</div>
+        <div class="issue-desc">User input directly interpolated into SQL query string — allows database takeover</div>
+        <div class="issue-fix">✅ Fixed: Switched to parameterized queries ($1, $2...)</div>
+      </div>
+    </div>
+    
+    <div class="issue">
+      <div class="issue-icon">🔴</div>
+      <div class="issue-content">
+        <div class="issue-title">Plain-Text Password Comparison</div>
+        <div class="issue-desc">Passwords compared as raw strings instead of bcrypt hashes — database leak = all passwords exposed</div>
+        <div class="issue-fix">✅ Fixed: Added bcrypt.compare() with proper password hashing</div>
+      </div>
+    </div>
+    
+    <div class="issue">
+      <div class="issue-icon">🔴</div>
+      <div class="issue-content">
+        <div class="issue-title">Hardcoded JWT Secret</div>
+        <div class="issue-desc">Secret key "secret123" committed to source code — anyone with repo access can forge tokens</div>
+        <div class="issue-fix">✅ Fixed: Moved to environment variable (process.env.JWT_SECRET)</div>
+      </div>
+    </div>
+    
+    <div class="issue">
+      <div class="issue-icon">🟡</div>
+      <div class="issue-content">
+        <div class="issue-title">No Rate Limiting</div>
+        <div class="issue-desc">No protection against brute-force attacks on login endpoint</div>
+        <div class="issue-fix">✅ Fixed: Added express-rate-limit (5 attempts per 15 minutes)</div>
+      </div>
+    </div>
+    
+    <div class="issue">
+      <div class="issue-icon">🟡</div>
+      <div class="issue-content">
+        <div class="issue-title">Overly Long Token Expiry</div>
+        <div class="issue-desc">7-day token lifetime increases window for token theft exploitation</div>
+        <div class="issue-fix">✅ Fixed: Reduced to 1 hour with refresh token pattern</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2>Got AI-generated code that needs fixing?</h2>
+    <p>We audit, fix, and secure AI-generated codebases. Most audits completed within 4-8 hours.</p>
+    <a href="#" class="cta-btn">Request Free Code Audit →</a>
+  </div>
+</div>
+
+</body>
+</html>
