@@ -7,19 +7,19 @@ These are ready-to-deploy portfolio samples showcasing your skills as an AI-Nati
 ### Sample 1: Landing Page (`sample1-landing-page/`)
 - **What**: SaaS product landing page with modern dark theme
 - **Tech**: Pure HTML/CSS, no dependencies, mobile responsive
-- **Demo**: Open `index.html` in browser
+- **Demo**: 🔗 [在线预览](https://xia-shangzhou.github.io/portfolio/sample1-landing-page/)
 - **Selling point**: "I can build this for your product in 24-48 hours"
 
 ### Sample 2: SaaS Dashboard (`sample2-saas-dashboard/`)
 - **What**: Full admin dashboard with sidebar, stats, charts, and data tables
 - **Tech**: Pure HTML/CSS, responsive layout
-- **Demo**: Open `index.html` in browser
+- **Demo**: 🔗 [在线预览](https://xia-shangzhou.github.io/portfolio/sample2-saas-dashboard/)
 - **Selling point**: "I can build your admin panel in 2-3 days"
 
 ### Sample 3: Code Audit Showcase (`sample3-fix-ai-code/`)
 - **What**: Before/after code comparison showing security fixes
 - **Tech**: Pure HTML/CSS, visual storytelling
-- **Demo**: Open `index.html` in browser
+- **Demo**: 🔗 [在线预览](https://xia-shangzhou.github.io/portfolio/sample3-fix-ai-code/)
 - **Selling point**: "I fix broken AI-generated code — here's proof"
 
 ## 🚀 How to Deploy
